@@ -200,21 +200,25 @@ class FSMonitorInotifyProcessEvent(ProcessEvent):
             t = (path, filename)
             self.fsmonitor_ref.pathscanner_files_deleted.append(t)
         else:
-            # Build tuple for PathScanner's DB of the form (path, filename,
-            # mtime), with mtime = -1 when it's a directory.
-            st = os.stat(pathname)
-            is_dir = stat.S_ISDIR(st.st_mode)
-            if not is_dir:
-                mtime = st[stat.ST_MTIME]
-                t = (path, filename, mtime)
-            else:
-                t = (path, filename, -1)
+            try:
+                # Build tuple for PathScanner's DB of the form (path, filename,
+                # mtime), with mtime = -1 when it's a directory.
+                st = os.stat(pathname)
+                is_dir = stat.S_ISDIR(st.st_mode)
+                if not is_dir:
+                    mtime = st[stat.ST_MTIME]
+                    t = (path, filename, mtime)
+                else:
+                    t = (path, filename, -1)
 
-            # Update PathScanner's DB.
-            if event_type == FSMonitor.CREATED:
-                self.fsmonitor_ref.pathscanner_files_created.append(t)
-            else:
-                self.fsmonitor_ref.pathscanner_files_modified.append(t)
+                # Update PathScanner's DB.
+                if event_type == FSMonitor.CREATED:
+                    self.fsmonitor_ref.pathscanner_files_created.append(t)
+                else:
+                    self.fsmonitor_ref.pathscanner_files_modified.append(t)
+            except OSError, e:
+                print "Caught a OSError, probably a file doesn't exist"
+                print pathname
 
 
     @classmethod
