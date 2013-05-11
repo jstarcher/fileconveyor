@@ -217,9 +217,7 @@ class FSMonitorInotifyProcessEvent(ProcessEvent):
                 else:
                     self.fsmonitor_ref.pathscanner_files_modified.append(t)
             except OSError, e:
-                print "Caught a OSError, probably a file doesn't exist"
-                print pathname
-
+                self.fsmonitor_ref.logger.warn("inotify caught an OSError, probably a file does not exist at '%s'." % (pathname))
 
     @classmethod
     def __ensure_unicode(cls, event):
